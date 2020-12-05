@@ -14,9 +14,6 @@ excel_alugueis = pd.read_excel(arquivo, 'Aluguel')
 
 funcoes.iniciar(lista_objetos, excel_proprietarios)
 
-print('Xablau')
-print(lista_objetos)
-
 def menu():
 
     while True:
@@ -47,13 +44,8 @@ def menu():
             continue
         
         if (menu == 1):
-            nome = input('Nome: ')
-            cpf = input('CPF: ')
-            data = input('Data: ')
-            objeto = funcoes.Proprietario(nome, cpf, data)
-            objeto.cadastrar_proprietario(excel_proprietarios)
-            lista_objetos.append(objeto)
-
+            
+            funcoes.menu_um(excel_proprietarios, lista_objetos)
             funcoes.salvar_dados(excel_proprietarios, excel_imoveis, excel_inquilinos, excel_alugueis)
 
         elif (menu == 2):

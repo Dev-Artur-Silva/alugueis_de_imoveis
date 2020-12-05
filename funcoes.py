@@ -66,6 +66,7 @@ class Aluguel:
     def relatorio_alugueis(self):
         pass
 
+
 def salvar_dados(excel_proprietarios, excel_imoveis, excel_inquilinos, excel_alugueis):
     # Criar objeto para leitura e selecionar planilha
     # Criar objeto para escrita
@@ -77,12 +78,69 @@ def salvar_dados(excel_proprietarios, excel_imoveis, excel_inquilinos, excel_alu
     # Salvar e fechar arquivo
     excel_writer.save()
 
+
 def iniciar(lista_objetos, excel_proprietarios):
     for x, y in excel_proprietarios.iterrows():
-        print('Oi')
         nome = y['Nome']
         cpf = y['CPF']
         data = y['Data de Nascimento']
         objeto = Proprietario(nome, cpf, data)
         lista_objetos.append(objeto)
-        return lista_objetos
+        
+
+def menu_um(excel_proprietarios, lista_objetos):
+
+    while True:
+
+        nome = input('Digite o nome do proprietario: ')
+
+        while True:
+            cpf = input('Digite o CPF do Proprietario (so numeros) ou 0 para sair: ')
+
+            if cpf == '0':
+                break
+
+            elif len(cpf) != 11 or not cpf.isdigit():
+                    print('E necessario 11 numeros.\n')
+                    continue
+            cpf = formatar_cpf(cpf)
+
+            if verificar_cpf(cpf, lista_objetos):
+                print('CPF ja cadastrado.')
+                continue
+
+            
+            break
+        
+        if cpf == '0':
+            break
+
+        while True:
+
+            data = input('Digite a data de nascimento (dd/mm/aaaa): ')
+
+            if len(data) != 10:
+                print('Digite no formato dd/mm/aaaa')
+                continue
+                
+            elif data[2] != '/' or data[5] != '/':
+                print('Digite no formato dd/mm/aaaa')
+                continue
+
+            break
+
+        objeto = Proprietario(nome, cpf, data)
+        objeto.cadastrar_proprietario(excel_proprietarios)
+        lista_objetos.append(objeto)
+
+        break
+    
+
+def formatar_cpf(cpf):
+    cpf = (f'{cpf[0:3]}.{cpf[3:6]}.{cpf[6:9]}-{cpf[9:]}')
+    return cpf
+
+def verificar_cpf(cpf, lista_objetos):
+    for x in lista_objetos:
+        if x.cpf == cpf:
+            return True
