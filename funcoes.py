@@ -444,7 +444,7 @@ def menu_dez(objetos_imovel, objetos_aluguel):
     for m in objetos_imovel:
         if m.status == 'Sim':
             for y in objetos_aluguel:
-                if y.data_saida[2] == '/' and m.codigo == y.codigo:
+                if y.data_saida[4] == '-' and m.codigo == y.codigo:
                     continue
                 else:
                     meses = pegar_meses(y.data_entrada)
