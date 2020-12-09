@@ -50,7 +50,7 @@ def menu():
             funcoes.salvar_dados(excel_proprietarios, excel_imoveis, excel_inquilinos, excel_alugueis)
 
         elif (menu == 2):
-            funcoes.menu_dois(excel_imoveis, objetos_proprietario, objetos_imovel)
+            funcoes.menu_dois(excel_imoveis, objetos_proprietario, objetos_imovel, objetos_inquilino)
             funcoes.salvar_dados(excel_proprietarios, excel_imoveis, excel_inquilinos, excel_alugueis)
         elif (menu == 3):
             funcoes.menu_tres(excel_inquilinos, objetos_inquilino, objetos_proprietario)
@@ -65,44 +65,18 @@ def menu():
             funcoes.salvar_dados(excel_proprietarios, excel_imoveis, excel_inquilinos, excel_alugueis)
         
         elif (menu == 6):
-            for x in objetos_proprietario:
-                x.relatorio_proprietarios()
+            funcoes.menu_seis(objetos_proprietario)
 
         elif (menu == 7):
-            for x in objetos_imovel:
-                for y in objetos_proprietario:
-                    if x.cpf == y.cpf:
-                        x.relatorio_imoveis(y.nome)
+            funcoes.menu_sete(objetos_imovel, objetos_proprietario)
                 #Exibe todos os dados dos imóveis: Código, CPF e Nome do Proprietário, Tipo,
                 #Endereço, Valor do Aluguel, Status Alugado;
 
         elif (menu == 8):
-            for x in objetos_inquilino:
-                x.relatorio_inquilinos()
+            funcoes.menu_oito(objetos_inquilino)
 
         elif (menu == 9):
-            for a in objetos_aluguel:
-
-                for i in objetos_inquilino:
-
-                    for p in objetos_proprietario:
-
-                        for m in objetos_imovel:
-
-                            if a.cpf == i.cpf:
-                                nome_inquilino = i.nome
-                                if p.cpf == m.cpf:
-                                    codigo = m.codigo
-                                    tipo = m.tipo
-                                    endereco = m.endereco
-                                    nome_proprietario = p.nome
-                                    if m.codigo == a.codigo:
-                                        valor = m.valor
-                                        data_entrada = a.data_entrada
-                                        data_saida = a.data_saida
-                                        a.relatorio_alugueis(nome_inquilino, codigo, tipo, endereco, nome_proprietario, valor, data_entrada, data_saida)
-                                        
-
+            funcoes.menu_nove(objetos_aluguel, objetos_inquilino, objetos_proprietario, objetos_imovel)
 
             #Nome do Inquilino;
             #ii. Código, Tipo, Endereço e Nome Proprietário do imóvel;
@@ -111,6 +85,7 @@ def menu():
             #v. Data fim do aluguel (se tiver finalizado);
         
         elif (menu == 10):
+            funcoes.menu_dez(objetos_imovel, objetos_aluguel)
             #ALUGUEIS NAO FINALIZADOS!
             #valor cobrado para comissão pela imobiliária é de 10% do valor do aluguel.
             #i. Valor do aluguel;
@@ -118,11 +93,6 @@ def menu():
             #iii. Valor da comissão do imóvel;
             #iv. Valor Total da Comissão calculado desde a data do início do imóvel até a
             #data atual.
-            for x in objetos_imovel:
-                if x.status == 'Sim':
-                    for y in objetos_aluguel:
-                        if x.codigo == y.codigo:
-                            print(f'Valor: {x.valor}, Data de Entrada: {y.data_entrada}, Valor da comissao: {x.valor * (10/100)}.')
         elif (menu == 0):
             break
 

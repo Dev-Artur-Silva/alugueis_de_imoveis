@@ -1,5 +1,5 @@
 import pandas as pd
-from datetime import datetime
+from datetime import *
 
 class Proprietario:
     
@@ -10,7 +10,6 @@ class Proprietario:
 
     def cadastrar_proprietario(self, excel_proprietarios):
         linha = [self.nome, self.cpf, self.data]
-        print(linha)
         excel_proprietarios.loc[len(excel_proprietarios)] = linha
 
     def relatorio_proprietarios(self):
@@ -33,7 +32,7 @@ class Imovel:
     
     def relatorio_imoveis(self, nome):
         print(f'''Codigo: {self.codigo}, CPF: {self.cpf}, Nome do Proprietario: {nome}, Tipo: {self.tipo}, Endereco: {self.endereco},
-Valor do aluguel: {self.valor}, Status do Aluguel: {self.status}\n''')
+Valor do aluguel: {self.valor}, Aluguel Cadastrado: {self.status}\n''')
 
 class Inquilino:
 
@@ -74,6 +73,15 @@ class Aluguel:
         Data de Saida: {data_saida}
         ''')
 
+class Comissoes:
+    def __init__(self, valor, data_entrada, comissao, total):
+        self.valor = valor 
+        self.data_entrada = data_entrada
+        self.comissao = comissao
+        self.total = total
+
+    def relatorio_comissoes(self):
+        print(f'Valor: {self.valor}, Data de Entrada: {self.data_entrada}, Valor da comissao: {self.comissao}, Total da comissao: {self.total}')
 
 def salvar_dados(excel_proprietarios, excel_imoveis, excel_inquilinos, excel_alugueis):
     # Criar objeto para leitura e selecionar planilha
@@ -164,10 +172,10 @@ def menu_um(excel_proprietarios, objetos_proprietario, objetos_inquilino):
         objeto = Proprietario(nome, cpf, data)
         objeto.cadastrar_proprietario(excel_proprietarios)
         objetos_proprietario.append(objeto)
-
+        print('Cadastro efetuado!')
         break
     
-def menu_dois(excel_imoveis, objetos_proprietario, objetos_imovel):
+def menu_dois(excel_imoveis, objetos_proprietario, objetos_imovel, objetos_inquilino):
     while True:    
             
         try:
@@ -193,7 +201,11 @@ def menu_dois(excel_imoveis, objetos_proprietario, objetos_imovel):
 
                 cpf = formatar_cpf(cpf)
 
-                if not verificar_cpf_proprietario(cpf, objetos_proprietario):
+                if cadastro_cpf_inquilino(cpf, objetos_inquilino):
+                    print('Informe um CPF de Proprietario.')
+                    continue
+
+                elif not verificar_cpf_proprietario(cpf, objetos_proprietario):
                     print('Proprietario nao cadastrado.')
                     continue
             
@@ -222,6 +234,7 @@ def menu_dois(excel_imoveis, objetos_proprietario, objetos_imovel):
             objeto = Imovel(codigo, cpf, tipo, endereco, valor, status)
             objeto.cadastrar_imovel(excel_imoveis)
             objetos_imovel.append(objeto)
+            print('Cadastro efetuado!')
             break
 
         except ValueError:
@@ -269,7 +282,7 @@ def menu_tres(excel_inquilinos, objetos_inquilino, objetos_proprietario):
         objeto = Inquilino(nome, cpf, data)
         objeto.cadastrar_inquilino(excel_inquilinos)
         objetos_inquilino.append(objeto)
-
+        print('Cadastro efetuado!')
         break 
 
 def menu_quatro(objetos_inquilino, objetos_imovel, excel_alugueis, objetos_aluguel, excel_imoveis):
@@ -307,7 +320,11 @@ def menu_quatro(objetos_inquilino, objetos_imovel, excel_alugueis, objetos_alugu
                 elif verificar_aluguel_cadastrado(codigo, excel_alugueis, excel_imoveis):
                     print('Imovel ja alugado.')
                     continue
-            
+                
+                elif verificar_aluguel_inquilino(codigo, cpf, objetos_aluguel):
+                    print('Esse inquilino ja foi cadastrado neste imovel. ')
+                    continue
+                
                 break
             except ValueError:
                 print('somente numeros')
@@ -325,14 +342,15 @@ def menu_quatro(objetos_inquilino, objetos_imovel, excel_alugueis, objetos_alugu
             elif data_entrada[2] != '/' or data_entrada[5] != '/':
                 print('Digite no formato dd/mm/aaaa')
                 continue
-
+            
             break
 
-        data_saida = ''
+        data_saida = 'ainda alugado'
         mudar_status_sim(codigo, objetos_imovel, excel_imoveis)
         objeto = Aluguel(cpf, codigo, data_entrada, data_saida)
         objeto.registrar(excel_alugueis)
         objetos_aluguel.append(objeto)
+        print('Aluguel efetuado!')
         break
 
 
@@ -376,13 +394,65 @@ def menu_cinco(objetos_inquilino, objetos_aluguel, objetos_imovel, excel_imoveis
             except ValueError:
                 print('Somente numeros')
         
-        data_saida = datetime.now().date()
+        data_saida = datetime.today().strftime('%Y-%m-%d')
 
         objeto = pegar_objeto_finalizar(cpf, codigo, objetos_aluguel)
         posicao = posicao_aluguel_dataframe(cpf, codigo, excel_alugueis)
         objeto.finalizar(data_saida, posicao, excel_alugueis)
         mudar_status_nao(codigo, objetos_imovel, excel_imoveis)
+        print('Aluguel finalizado!')
         break
+
+def menu_seis(objetos_proprietario):
+    for x in objetos_proprietario:
+        x.relatorio_proprietarios()
+
+def menu_sete(objetos_imovel, objetos_proprietario):
+    for x in objetos_imovel:
+        for y in objetos_proprietario:
+            if x.cpf == y.cpf:
+                x.relatorio_imoveis(y.nome)
+
+def menu_oito(objetos_inquilino):
+    for x in objetos_inquilino:
+        x.relatorio_inquilinos()
+
+def menu_nove(objetos_aluguel, objetos_inquilino, objetos_proprietario, objetos_imovel):
+    for a in objetos_aluguel:
+
+        for i in objetos_inquilino:
+
+            for p in objetos_proprietario:
+
+                for m in objetos_imovel:
+
+                    if a.cpf == i.cpf:
+                        nome_inquilino = i.nome
+                        if p.cpf == m.cpf:
+                            codigo = m.codigo
+                            tipo = m.tipo
+                            endereco = m.endereco
+                            nome_proprietario = p.nome
+                            if m.codigo == a.codigo:
+                                valor = m.valor
+                                data_entrada = a.data_entrada
+                                data_saida = a.data_saida
+                                a.relatorio_alugueis(nome_inquilino, codigo, tipo, endereco, nome_proprietario, valor, data_entrada, data_saida)
+                                        
+
+def menu_dez(objetos_imovel, objetos_aluguel):
+    for m in objetos_imovel:
+        if m.status == 'Sim':
+            for y in objetos_aluguel:
+                if y.data_saida[2] == '/' and m.codigo == y.codigo:
+                    continue
+                else:
+                    meses = pegar_meses(y.data_entrada)
+                    total = (m.valor * (10/100)) * meses
+                    comissoes = Comissoes(m.valor, y.data_entrada, (m.valor*(10/100)), total)
+                    comissoes.relatorio_comissoes()
+                    
+
 
 
 def formatar_cpf(cpf):
@@ -450,3 +520,18 @@ def posicao_aluguel_dataframe(cpf, codigo, excel_alugueis):
     for x, y in excel_alugueis.iterrows():
         if cpf == y['CPF do Inquilino'] and codigo == y['Codigo do Imovel']:
             return x
+
+def verificar_aluguel_inquilino(codigo, cpf, objetos_aluguel):
+    for x in objetos_aluguel:
+        if codigo == x.codigo and cpf == x.cpf:
+            return True
+
+def pegar_meses(data_entrada):
+
+    data2 = date.today() #Aqui você pode validar as entradas, irei deixar pra você
+    data_entrada = datetime.strptime(data_entrada, "%d/%m/%Y").date()
+
+
+    dias = data2 - data_entrada
+    meses = dias.days // 30
+    return meses
