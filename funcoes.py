@@ -444,13 +444,12 @@ def menu_dez(objetos_imovel, objetos_aluguel):
     for m in objetos_imovel:
         if m.status == 'Sim':
             for y in objetos_aluguel:
-                if y.data_saida[4] == '-' and m.codigo == y.codigo:
-                    continue
-                else:
+                if y.data_saida[4] != '-' and m.codigo == y.codigo:
                     meses = pegar_meses(y.data_entrada)
                     total = (m.valor * (10/100)) * meses
                     comissoes = Comissoes(m.valor, y.data_entrada, (m.valor*(10/100)), total)
                     comissoes.relatorio_comissoes()
+                    
                     
 
 
